@@ -25,6 +25,17 @@ namespace AgatePris.Apuu {
             t.SetParent(parent, false);
             return t;
         }
+        static Transform CreateTransform(
+            in Transform parent,
+            in Vector3 localPosition,
+            in Quaternion localRotation,
+            in Vector3 localScale) {
+            var t = CreateTransform(parent);
+            t.localPosition = localPosition;
+            t.localRotation = localRotation;
+            t.localScale = localScale;
+            return t;
+        }
         static void RandomizeTransform(in Transform transform) {
             transform.localPosition = Random.insideUnitSphere;
             transform.localRotation = Random.rotation;
@@ -110,6 +121,49 @@ namespace AgatePris.Apuu {
 
             return rent;
         }
+        Transform RentWithOriginalPositionAndRotationAtPositionAndRotationTest() {
+            var position = Random.insideUnitSphere;
+            var rotation = Random.rotation;
+
+            var expectedParent = CreateTransform();
+            expectedParent.SetPositionAndRotation(position, rotation);
+            var expected = CreateTransform(
+                expectedParent,
+                original.localPosition,
+                original.localRotation,
+                original.localScale);
+            var rent = objectPool.RentWithOriginalPositionAndRotation(position, rotation);
+
+            Assert.AreEqual(null, rent.parent);
+            AssertMatricesAreEqual(expected.localToWorldMatrix, rent.localToWorldMatrix);
+
+            Object.DestroyImmediate(expected.gameObject);
+            Object.DestroyImmediate(expectedParent.gameObject);
+
+            return rent;
+        }
+        Transform RentWithOriginalPositionAndRotationAtPositionAndRotationInLocalSpaceTest() {
+            var position = Random.insideUnitSphere;
+            var rotation = Random.rotation;
+
+            var expectedParent = CreateTransform(parent);
+            expectedParent.SetPositionAndRotation(position, rotation);
+            var expected = CreateTransform(
+                expectedParent,
+                original.localPosition,
+                original.localRotation,
+                original.localScale);
+            var rent = objectPool.RentWithOriginalPositionAndRotation(
+                position, rotation, parent);
+
+            Assert.AreEqual(parent, rent.parent);
+            AssertMatricesAreEqual(expected.localToWorldMatrix, rent.localToWorldMatrix);
+
+            Object.DestroyImmediate(expected.gameObject);
+            Object.DestroyImmediate(expectedParent.gameObject);
+
+            return rent;
+        }
 
         [Test]
         public void Test() {
@@ -123,12 +177,18 @@ namespace AgatePris.Apuu {
                 RandomizeTransform(parentParent);
                 RandomizeTransform(parent);
 
-                switch (Random.Range(0, 5)) {
+                switch (Random.Range(0, 7)) {
                     case 0: { return RentTest(); }
                     case 1: { return RentAtPositionAndRotationTest(); }
                     case 2: { return RentAtPositionAndRotationInLocalSpaceTest(); }
                     case 3: { return RentInLocalSpaceTest(); }
                     case 4: { return RentInWorldSpaceTest(); }
+                    case 5: {
+                        return RentWithOriginalPositionAndRotationAtPositionAndRotationTest();
+                    }
+                    case 6: {
+                        return RentWithOriginalPositionAndRotationAtPositionAndRotationInLocalSpaceTest();
+                    }
                     default: { throw new InvalidOperationException(); }
                 }
             }

@@ -11,6 +11,8 @@ namespace AgatePris.Apuu {
             AtPositionAndRotationInLocalSpace,
             InLocalSpace,
             InWorldSpace,
+            WithOriginalPositionAndRotationAtPositionAndRotation,
+            WithOriginalPositionAndRotationAtPositionAndRotationInLocalSpace,
         }
 
         readonly T original;
@@ -60,6 +62,21 @@ namespace AgatePris.Apuu {
                     transform.SetParent(parent);
                     break;
                 }
+                case Pattern.WithOriginalPositionAndRotationAtPositionAndRotation: {
+                    transform.localScale = original.transform.localScale;
+                    Utility.SimulateTransform(
+                        transform, position, rotation,
+                        original.transform.localPosition, original.transform.localRotation);
+                    break;
+                }
+                case Pattern.WithOriginalPositionAndRotationAtPositionAndRotationInLocalSpace: {
+                    transform.localScale = original.transform.localScale;
+                    Utility.SimulateTransform(
+                        transform, position, rotation,
+                        original.transform.localPosition, original.transform.localRotation,
+                        parent);
+                    break;
+                }
                 default: { throw new InvalidOperationException(); }
             }
         }
@@ -76,6 +93,14 @@ namespace AgatePris.Apuu {
                 }
                 case Pattern.InLocalSpace: { return Object.Instantiate(original, parent); }
                 case Pattern.InWorldSpace: { return Object.Instantiate(original, parent, true); }
+                case Pattern.WithOriginalPositionAndRotationAtPositionAndRotation: {
+                    return Utility.InstantiateWithOriginalPositionAndRotation(
+                        original, position, rotation);
+                }
+                case Pattern.WithOriginalPositionAndRotationAtPositionAndRotationInLocalSpace: {
+                    return Utility.InstantiateWithOriginalPositionAndRotation(
+                        original, position, rotation, parent);
+                }
                 default: { throw new InvalidOperationException(); }
             }
         }
@@ -136,6 +161,36 @@ namespace AgatePris.Apuu {
         }
         public T RentInWorldSpace(in Transform parent) {
             pattern = Pattern.InWorldSpace;
+            this.parent = parent;
+            try {
+                var instance = Rent();
+                pattern = Pattern.Default;
+                this.parent = null;
+                return instance;
+            } catch (Exception e) {
+                pattern = Pattern.Default;
+                this.parent = null;
+                throw e;
+            }
+        }
+        public T RentWithOriginalPositionAndRotation(in Vector3 position, in Quaternion rotation) {
+            pattern = Pattern.WithOriginalPositionAndRotationAtPositionAndRotation;
+            this.position = position;
+            this.rotation = rotation;
+            try {
+                var instance = Rent();
+                pattern = Pattern.Default;
+                return instance;
+            } catch (Exception e) {
+                pattern = Pattern.Default;
+                throw e;
+            }
+        }
+        public T RentWithOriginalPositionAndRotation(
+            in Vector3 position, in Quaternion rotation, in Transform parent) {
+            pattern = Pattern.WithOriginalPositionAndRotationAtPositionAndRotationInLocalSpace;
+            this.position = position;
+            this.rotation = rotation;
             this.parent = parent;
             try {
                 var instance = Rent();
