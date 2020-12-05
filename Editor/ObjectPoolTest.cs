@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Assert = UnityEngine.Assertions.Assert;
@@ -59,6 +60,34 @@ namespace AgatePris.Apuu {
 
             return rent;
         }
+        Transform RentAtPositionAndRotationTest() {
+            var position = Random.insideUnitSphere;
+            var rotation = Random.rotation;
+
+            var expected = Object.Instantiate(original, position, rotation);
+            var rent = objectPool.Rent(position, rotation);
+
+            Assert.AreEqual(null, rent.parent);
+            AssertMatricesAreEqual(expected.localToWorldMatrix, rent.localToWorldMatrix);
+
+            Object.DestroyImmediate(expected.gameObject);
+
+            return rent;
+        }
+        Transform RentAtPositionAndRotationInLocalSpaceTest() {
+            var position = Random.insideUnitSphere;
+            var rotation = Random.rotation;
+
+            var expected = Object.Instantiate(original, position, rotation, parent);
+            var rent = objectPool.Rent(position, rotation, parent);
+
+            Assert.AreEqual(parent, rent.parent);
+            AssertMatricesAreEqual(expected.localToWorldMatrix, rent.localToWorldMatrix);
+
+            Object.DestroyImmediate(expected.gameObject);
+
+            return rent;
+        }
 
         [Test]
         public void Test() {
@@ -72,7 +101,12 @@ namespace AgatePris.Apuu {
                 RandomizeTransform(parentParent);
                 RandomizeTransform(parent);
 
-                return RentTest();
+                switch (Random.Range(0, 3)) {
+                    case 0: { return RentTest(); }
+                    case 1: { return RentAtPositionAndRotationTest(); }
+                    case 2: { return RentAtPositionAndRotationInLocalSpaceTest(); }
+                    default: { throw new InvalidOperationException(); }
+                }
             }
 
             {
