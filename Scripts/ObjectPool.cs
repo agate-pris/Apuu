@@ -10,6 +10,7 @@ namespace AgatePris.Apuu {
             AtPositionAndRotation,
             AtPositionAndRotationInLocalSpace,
             InLocalSpace,
+            InWorldSpace,
         }
 
         readonly T original;
@@ -51,6 +52,14 @@ namespace AgatePris.Apuu {
                     transform.SetParent(parent, false);
                     break;
                 }
+                case Pattern.InWorldSpace: {
+                    transform.SetPositionAndRotation(
+                        original.transform.position,
+                        original.transform.rotation);
+                    transform.localScale = original.transform.lossyScale;
+                    transform.SetParent(parent);
+                    break;
+                }
                 default: { throw new InvalidOperationException(); }
             }
         }
@@ -66,6 +75,7 @@ namespace AgatePris.Apuu {
                     return Object.Instantiate(original, position, rotation, parent);
                 }
                 case Pattern.InLocalSpace: { return Object.Instantiate(original, parent); }
+                case Pattern.InWorldSpace: { return Object.Instantiate(original, parent, true); }
                 default: { throw new InvalidOperationException(); }
             }
         }
@@ -112,6 +122,20 @@ namespace AgatePris.Apuu {
         }
         public T RentInLocalSpace(in Transform parent) {
             pattern = Pattern.InLocalSpace;
+            this.parent = parent;
+            try {
+                var instance = Rent();
+                pattern = Pattern.Default;
+                this.parent = null;
+                return instance;
+            } catch (Exception e) {
+                pattern = Pattern.Default;
+                this.parent = null;
+                throw e;
+            }
+        }
+        public T RentInWorldSpace(in Transform parent) {
+            pattern = Pattern.InWorldSpace;
             this.parent = parent;
             try {
                 var instance = Rent();

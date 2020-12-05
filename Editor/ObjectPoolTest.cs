@@ -99,6 +99,17 @@ namespace AgatePris.Apuu {
 
             return rent;
         }
+        Transform RentInWorldSpaceTest() {
+            var expected = Object.Instantiate(original, parent, true);
+            var rent = objectPool.RentInWorldSpace(parent);
+
+            Assert.AreEqual(parent, rent.parent);
+            AssertMatricesAreEqual(expected.localToWorldMatrix, rent.localToWorldMatrix);
+
+            Object.DestroyImmediate(expected.gameObject);
+
+            return rent;
+        }
 
         [Test]
         public void Test() {
@@ -112,11 +123,12 @@ namespace AgatePris.Apuu {
                 RandomizeTransform(parentParent);
                 RandomizeTransform(parent);
 
-                switch (Random.Range(0, 4)) {
+                switch (Random.Range(0, 5)) {
                     case 0: { return RentTest(); }
                     case 1: { return RentAtPositionAndRotationTest(); }
                     case 2: { return RentAtPositionAndRotationInLocalSpaceTest(); }
                     case 3: { return RentInLocalSpaceTest(); }
+                    case 4: { return RentInWorldSpaceTest(); }
                     default: { throw new InvalidOperationException(); }
                 }
             }
