@@ -22,5 +22,28 @@ namespace AgatePris.Apuu {
                 rotation * original.transform.localRotation,
                 parent);
         }
+        public static void SimulateTransform(
+            in Transform transform,
+            in Vector3 parentPosition,
+            in Quaternion parentRotation,
+            in Vector3 childLocalPosition,
+            in Quaternion childLocalRotation)
+            => transform.SetPositionAndRotation(
+                parentPosition + (parentRotation * childLocalPosition),
+                parentRotation * childLocalRotation);
+        public static void SimulateTransform(
+            in Transform transform,
+            in Vector3 parentPosition,
+            in Quaternion parentRotation,
+            in Vector3 childLocalPosition,
+            in Quaternion childLocalRotation,
+            in Transform actualParent) {
+            transform.SetParent(actualParent, false);
+            var vector
+                = Quaternion.Inverse(actualParent.rotation) * parentRotation * childLocalPosition;
+            transform.SetPositionAndRotation(
+                parentPosition + actualParent.TransformVector(vector),
+                parentRotation * childLocalRotation);
+        }
     }
 }
