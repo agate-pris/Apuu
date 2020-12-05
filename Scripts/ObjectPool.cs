@@ -9,6 +9,7 @@ namespace AgatePris.Apuu {
             Default,
             AtPositionAndRotation,
             AtPositionAndRotationInLocalSpace,
+            InLocalSpace,
         }
 
         readonly T original;
@@ -42,6 +43,14 @@ namespace AgatePris.Apuu {
                     transform.SetPositionAndRotation(position, rotation);
                     break;
                 }
+                case Pattern.InLocalSpace: {
+                    transform.SetPositionAndRotation(
+                        original.transform.localPosition,
+                        original.transform.localRotation);
+                    transform.localScale = original.transform.localScale;
+                    transform.SetParent(parent, false);
+                    break;
+                }
                 default: { throw new InvalidOperationException(); }
             }
         }
@@ -56,6 +65,7 @@ namespace AgatePris.Apuu {
                 case Pattern.AtPositionAndRotationInLocalSpace: {
                     return Object.Instantiate(original, position, rotation, parent);
                 }
+                case Pattern.InLocalSpace: { return Object.Instantiate(original, parent); }
                 default: { throw new InvalidOperationException(); }
             }
         }
@@ -88,6 +98,20 @@ namespace AgatePris.Apuu {
             pattern = Pattern.AtPositionAndRotationInLocalSpace;
             this.position = position;
             this.rotation = rotation;
+            this.parent = parent;
+            try {
+                var instance = Rent();
+                pattern = Pattern.Default;
+                this.parent = null;
+                return instance;
+            } catch (Exception e) {
+                pattern = Pattern.Default;
+                this.parent = null;
+                throw e;
+            }
+        }
+        public T RentInLocalSpace(in Transform parent) {
+            pattern = Pattern.InLocalSpace;
             this.parent = parent;
             try {
                 var instance = Rent();
