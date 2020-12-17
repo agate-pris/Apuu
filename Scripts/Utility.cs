@@ -1,7 +1,108 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AgatePris.Apuu {
     public class Utility {
+        public static bool AllOfObjectsAreDestroyed<T>(in T objects) where T : IEnumerable<Object> {
+            foreach (var i in objects) {
+                if (i) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AnyOfObjectsIsDestroyed<T>(in T objects) where T : IEnumerable<Object> {
+            foreach (var i in objects) {
+                if (!i) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool AllOfBehavioursAreEnabled<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i.enabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AllOfBehavioursAreEnabledIncludeDestroyed<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i || !i.enabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AllOfBehavioursAreEnabledExcludeDestroyed<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i) {
+                    continue;
+                }
+                if (!i.enabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AnyOfBehavioursIsEnabled<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i) {
+                    continue;
+                }
+                if (i.enabled) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool AllOfBehavioursAreActiveAndEnabled<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i.isActiveAndEnabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AllOfBehavioursAreActiveAndEnabledIncludeDestroyed<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i || !i.isActiveAndEnabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AllOfBehavioursAreActiveAndEnabledExcludeDestroyed<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i) {
+                    continue;
+                }
+                if (!i.isActiveAndEnabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool AnyOfBehavioursIsActiveAndEnabled<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i) {
+                    continue;
+                }
+                if (i.isActiveAndEnabled) {
+                    return true;
+                }
+            }
+            return false;
+        }
         public static T InstantiateWithOriginalPositionAndRotation<T>(
             in T original, in Vector3 position, in Quaternion rotation) where T : Component
             => Object.Instantiate(
