@@ -16,5 +16,17 @@ namespace AgatePris.Apuu {
             Object.DestroyImmediate(behaviour);
             Assert.IsTrue(Utility.AllOfObjectsAreDestroyed(l));
         }
+
+        [Test]
+        public void TestAnyOfObjectsIsDestroyed() {
+            var gameObject = new GameObject();
+            var behaviour = gameObject.AddComponent<EventTrigger>();
+            var l = new List<EventTrigger>();
+            Assert.IsFalse(Utility.AnyOfObjectsIsDestroyed(l));
+            l.Add(behaviour);
+            Assert.IsFalse(Utility.AnyOfObjectsIsDestroyed(l));
+            Object.DestroyImmediate(behaviour);
+            Assert.IsTrue(Utility.AnyOfObjectsIsDestroyed(l));
+        }
     }
 }
