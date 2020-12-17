@@ -28,6 +28,15 @@ namespace AgatePris.Apuu {
             }
             return true;
         }
+        public static bool AllOfBehavioursAreEnabledIncludeDestroyed<T>(in T behaviours)
+            where T : IEnumerable<Behaviour> {
+            foreach (var i in behaviours) {
+                if (!i || !i.enabled) {
+                    return false;
+                }
+            }
+            return true;
+        }
         public static T InstantiateWithOriginalPositionAndRotation<T>(
             in T original, in Vector3 position, in Quaternion rotation) where T : Component
             => Object.Instantiate(
