@@ -107,5 +107,27 @@ namespace AgatePris.Apuu {
             Object.DestroyImmediate(behaviour);
             Assert.IsFalse(Utility.AnyOfBehavioursIsEnabled(l));
         }
+
+        [Test]
+        public void TestAllOfBehavioursAreActiveAndEnabled() {
+            var gameObject = new GameObject();
+            var behaviour = gameObject.AddComponent<EventTrigger>();
+            var l = new List<EventTrigger>();
+            Assert.IsTrue(Utility.AllOfBehavioursAreActiveAndEnabled(l));
+            l.Add(behaviour);
+            Assert.IsTrue(Utility.AllOfBehavioursAreActiveAndEnabled(l));
+            behaviour.enabled = false;
+            Assert.IsFalse(Utility.AllOfBehavioursAreActiveAndEnabled(l));
+            gameObject.SetActive(false);
+            Assert.IsFalse(Utility.AllOfBehavioursAreActiveAndEnabled(l));
+            behaviour.enabled = true;
+            Assert.IsFalse(Utility.AllOfBehavioursAreActiveAndEnabled(l));
+            gameObject.SetActive(true);
+            Assert.IsTrue(Utility.AllOfBehavioursAreActiveAndEnabled(l));
+            Object.DestroyImmediate(behaviour);
+            _ = Assert.Throws(
+                typeof(MissingReferenceException),
+                () => Utility.AllOfBehavioursAreActiveAndEnabled(l));
+        }
     }
 }
