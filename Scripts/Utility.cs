@@ -1,7 +1,16 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AgatePris.Apuu {
     public class Utility {
+        public static bool AllOfObjectsAreDestroyed<T>(in T objects) where T : IEnumerable<Object> {
+            foreach (var i in objects) {
+                if (i) {
+                    return false;
+                }
+            }
+            return true;
+        }
         public static T InstantiateWithOriginalPositionAndRotation<T>(
             in T original, in Vector3 position, in Quaternion rotation) where T : Component
             => Object.Instantiate(
