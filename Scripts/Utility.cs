@@ -11,6 +11,14 @@ namespace AgatePris.Apuu {
             }
             return true;
         }
+        public static bool AnyOfObjectsIsDestroyed<T>(in T objects) where T : IEnumerable<Object> {
+            foreach (var i in objects) {
+                if (!i) {
+                    return true;
+                }
+            }
+            return false;
+        }
         public static T InstantiateWithOriginalPositionAndRotation<T>(
             in T original, in Vector3 position, in Quaternion rotation) where T : Component
             => Object.Instantiate(
